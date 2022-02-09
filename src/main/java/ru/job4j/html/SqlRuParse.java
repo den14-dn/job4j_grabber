@@ -14,12 +14,8 @@ public class SqlRuParse {
         Elements row = doc.select(".postslisttopic");
         for (Element td : row) {
             Element parent = td.parent();
-            try {
-                LocalDateTime ldt = new SqlRuDateTimeParser().parse(parent.child(5).text());
-                System.out.println(ldt);
-            } catch (Exception e) {
-                System.out.println(parent.child(5).text());
-            }
+            LocalDateTime ldt = new SqlRuDateTimeParser().parse(parent.child(5).text());
+            System.out.println(ldt);
         }
     }
 }

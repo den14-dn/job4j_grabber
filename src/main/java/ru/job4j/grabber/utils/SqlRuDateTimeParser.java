@@ -8,50 +8,42 @@ import java.util.Map;
 import static java.util.Map.entry;
 
 public class SqlRuDateTimeParser implements DateTimeParser {
-    private static final Map<String, String> MONTHS = Map.ofEntries(
-            entry("янв", "01"),
-            entry("фев", "02"),
-            entry("мар", "03"),
-            entry("апр", "04"),
-            entry("май", "05"),
-            entry("июн", "06"),
-            entry("июл", "07"),
-            entry("авг", "08"),
-            entry("сен", "09"),
-            entry("окт", "10"),
-            entry("ноя", "11"),
-            entry("дек", "12")
+    private static final Map<String, LocalDate> DAYS_OF_WEEK = Map.ofEntries(
+            entry("вчера", LocalDate.now().minusDays(1)),
+            entry("сегодня", LocalDate.now())
+    );
+    private static final Map<String, Integer> MONTHS = Map.ofEntries(
+            entry("янв", 1),
+            entry("фев", 2),
+            entry("мар", 3),
+            entry("апр", 4),
+            entry("май", 5),
+            entry("июн", 6),
+            entry("июл", 7),
+            entry("авг", 8),
+            entry("сен", 9),
+            entry("окт", 10),
+            entry("ноя", 11),
+            entry("дек", 12)
     );
 
     @Override
     public LocalDateTime parse(String parse) {
-        if (parse.startsWith("сегодня")) {
-            String[] arrayTime = parse.replace(" ", "").split(",")[1].split(":");
-            LocalTime lt = LocalTime.of(
-                    Integer.parseInt(arrayTime[0]),
-                    Integer.parseInt(arrayTime[1])
+        parse = parse.replace(",", "");
+        String[] arrayValues = parse.split(" ");
+
+        LocalDate date = DAYS_OF_WEEK.get(arrayValues[0]);
+        if (date == null) {
+            date = LocalDate.of(
+                    Integer.parseInt("20".concat(arrayValues[2])),
+                    MONTHS.get(arrayValues[1]),
+                    Integer.parseInt(arrayValues[0])
             );
-            return LocalDateTime.of(LocalDate.now(), lt);
-        } else if (parse.startsWith("вчера")) {
-            String[] arrayTime = parse.replace(" ", "").split(",")[1].split(":");
-            LocalTime lt = LocalTime.of(
-                    Integer.parseInt(arrayTime[0]),
-                    Integer.parseInt(arrayTime[1])
-            );
-            return LocalDateTime.of(LocalDate.now().minusDays(1), lt);
-        } else {
-            String[] arrayDateTime = parse.split(" ");
-            LocalDate ld = LocalDate.of(
-                    Integer.parseInt("20".concat(arrayDateTime[2]).replace(",", "")),
-                    Integer.parseInt(MONTHS.get(arrayDateTime[1])),
-                    Integer.parseInt(arrayDateTime[0])
-            );
-            String[] arrayTime = arrayDateTime[3].split(":");
-            LocalTime lt = LocalTime.of(
-                    Integer.parseInt(arrayTime[0]),
-                    Integer.parseInt(arrayTime[1])
-            );
-            return LocalDateTime.of(ld, lt);
         }
+
+        String[] arrayTime = arrayValues[arrayValues.length - 1].split(":");
+        LocalTime time = LocalTime.of(Integer.parseInt(arrayTime[0]), Integer.parseInt(arrayTime[1]));
+
+        return LocalDateTime.of(date, time);
     }
 }

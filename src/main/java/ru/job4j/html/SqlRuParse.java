@@ -9,8 +9,16 @@ import ru.job4j.grabber.utils.SqlRuDateTimeParser;
 import java.time.LocalDateTime;
 
 public class SqlRuParse {
+    private static int COUNT_PAGES = 5;
+
     public static void main(String[] args) throws Exception {
-        Document doc = Jsoup.connect("https://www.sql.ru/forum/job-offers").get();
+        SqlRuParse parser = new SqlRuParse();
+        for (int pageNumber = 1; pageNumber <= COUNT_PAGES; pageNumber++) {
+            parser.parseURL("https://www.sql.ru/forum/job-offers/" + pageNumber);
+        }
+    }
+    private void parseURL(String url) throws Exception {
+        Document doc = Jsoup.connect(url).get();
         Elements row = doc.select(".postslisttopic");
         for (Element td : row) {
             Element parent = td.parent();

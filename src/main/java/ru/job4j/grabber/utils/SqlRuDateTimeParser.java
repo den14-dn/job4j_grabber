@@ -8,10 +8,9 @@ import java.util.Map;
 import static java.util.Map.entry;
 
 public class SqlRuDateTimeParser implements DateTimeParser {
-    private static final Map<String, LocalDate> DAYS_OF_WEEK = Map.ofEntries(
-            entry("вчера", LocalDate.now().minusDays(1)),
-            entry("сегодня", LocalDate.now())
-    );
+    private static final String YESTERDAY = "вчера";
+    private static final String TODAY = "сегодня";
+
     private static final Map<String, Integer> MONTHS = Map.ofEntries(
             entry("янв", 1),
             entry("фев", 2),
@@ -32,8 +31,12 @@ public class SqlRuDateTimeParser implements DateTimeParser {
         parse = parse.replace(",", "");
         String[] arrayValues = parse.split(" ");
 
-        LocalDate date = DAYS_OF_WEEK.get(arrayValues[0]);
-        if (date == null) {
+        LocalDate date = null;
+        if (arrayValues[0].equalsIgnoreCase(YESTERDAY)) {
+            date = LocalDate.now().minusDays(1);
+        } else if (arrayValues[0].equalsIgnoreCase(TODAY)) {
+            date = LocalDate.now();
+        } else {
             date = LocalDate.of(
                     Integer.parseInt("20".concat(arrayValues[2])),
                     MONTHS.get(arrayValues[1]),

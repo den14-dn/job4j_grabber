@@ -24,7 +24,9 @@ public class SqlRuParse {
         for (Element td : row) {
             Element parent = td.parent();
             LocalDateTime ldt = new SqlRuDateTimeParser().parse(parent.child(5).text());
-            System.out.println(ldt);
+            Element href = td.child(0);
+            System.out.printf("%s - %s - '%s'", ldt, href.attr("href"), href.text());
+            System.out.println(System.lineSeparator());
         }
     }
 }

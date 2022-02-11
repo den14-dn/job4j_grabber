@@ -11,8 +11,8 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 
 public class SqlRuParse {
-    private final int COUNT_PAGES = 5;
-    private final String URL_SITE = "https://www.sql.ru/forum/job-offers/";
+    private static final int COUNT_PAGES = 5;
+    private static final String URL_SITE = "https://www.sql.ru/forum/job-offers/";
 
     public static void main(String[] args) throws Exception {
         SqlRuParse parser = new SqlRuParse();

@@ -30,8 +30,10 @@ public class SqlRuDateTimeParser implements DateTimeParser {
     public LocalDateTime parse(String parse) {
         parse = parse.replace(",", "");
         String[] arrayValues = parse.split(" ");
+        String[] arrayTime = arrayValues[1].split(":");
 
-        LocalDate date = null;
+        LocalDate date;
+
         if (arrayValues[0].equalsIgnoreCase(YESTERDAY)) {
             date = LocalDate.now().minusDays(1);
         } else if (arrayValues[0].equalsIgnoreCase(TODAY)) {
@@ -42,9 +44,9 @@ public class SqlRuDateTimeParser implements DateTimeParser {
                     MONTHS.get(arrayValues[1]),
                     Integer.parseInt(arrayValues[0])
             );
+            arrayTime = arrayValues[3].split(":");
         }
 
-        String[] arrayTime = arrayValues[arrayValues.length - 1].split(":");
         LocalTime time = LocalTime.of(Integer.parseInt(arrayTime[0]), Integer.parseInt(arrayTime[1]));
 
         return LocalDateTime.of(date, time);

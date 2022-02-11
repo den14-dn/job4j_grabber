@@ -4,29 +4,45 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import ru.job4j.grabber.Post;
 import ru.job4j.grabber.utils.SqlRuDateTimeParser;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 public class SqlRuParse {
-    private static final int COUNT_PAGES = 5;
+    private final int COUNT_PAGES = 5;
+    private final String URL_SITE = "https://www.sql.ru/forum/job-offers/";
 
     public static void main(String[] args) throws Exception {
         SqlRuParse parser = new SqlRuParse();
-        for (int pageNumber = 1; pageNumber <= COUNT_PAGES; pageNumber++) {
-            parser.parseURL("https://www.sql.ru/forum/job-offers/" + pageNumber);
+        for (int pageNumber = 1; pageNumber <= parser.COUNT_PAGES; pageNumber++) {
+            parser.parseURL(parser.URL_SITE + pageNumber);
         }
     }
 
-    private void parseURL(String url) throws Exception {
+    private void parseURL(String url) throws IOException {
         Document doc = Jsoup.connect(url).get();
         Elements row = doc.select(".postslisttopic");
         for (Element td : row) {
             Element parent = td.parent();
-            LocalDateTime ldt = new SqlRuDateTimeParser().parse(parent.child(5).text());
+            LocalDateTime created = new SqlRuDateTimeParser().parse(parent.child(5).text());
             Element href = td.child(0);
-            System.out.printf("%s - %s - '%s'", ldt, href.attr("href"), href.text());
+            String link = href.attr("href");
+            System.out.printf("%s - %s - '%s'", created, link, href.text());
+            System.out.println(System.lineSeparator());
+
+            Post post = getDataPost(link);
+            System.out.println(post.toString());
             System.out.println(System.lineSeparator());
         }
+    }
+
+    private Post getDataPost(String url) throws IOException {
+        Document doc = Jsoup.connect(url).get();
+        String title = doc.title();
+        LocalDateTime created = new SqlRuDateTimeParser().parse(doc.select(".msgFooter").get(0).text().substring(0, 16));
+        String description = doc.select(".msgBody").get(1).text();
+        return new Post(title, url, description, created);
     }
 }

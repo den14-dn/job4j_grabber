@@ -41,7 +41,8 @@ public class SqlRuParse {
     private Post getDataPost(String url) throws IOException {
         Document doc = Jsoup.connect(url).get();
         String title = doc.title();
-        LocalDateTime created = new SqlRuDateTimeParser().parse(doc.select(".msgFooter").get(0).text().substring(0, 16));
+        String stringDate = doc.select(".msgFooter").get(0).text();
+        LocalDateTime created = new SqlRuDateTimeParser().parse(stringDate.substring(0, stringDate.indexOf('[')));
         String description = doc.select(".msgBody").get(1).text();
         return new Post(title, url, description, created);
     }

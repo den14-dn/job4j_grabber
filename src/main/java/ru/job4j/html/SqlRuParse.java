@@ -46,12 +46,20 @@ public class SqlRuParse implements Parse {
     }
 
     @Override
-    public Post detail(String link) throws IOException {
-        Document doc = Jsoup.connect(link).get();
-        String title = doc.title();
-        String stringDate = doc.select(".msgFooter").get(0).text();
-        LocalDateTime created = new SqlRuDateTimeParser().parse(stringDate.substring(0, stringDate.indexOf('[')));
-        String description = doc.select(".msgBody").get(1).text();
-        return new Post(title, link, description, created);
+    public Post detail(String link) {
+        Post post = null;
+        try {
+            Document doc = Jsoup.connect(link).get();
+            String title = doc.title();
+            if (title.contains("Java")) {
+                String stringDate = doc.select(".msgFooter").get(0).text();
+                LocalDateTime created = dateTimeParser.parse(stringDate.substring(0, stringDate.indexOf('[')));
+                String description = doc.select(".msgBody").get(1).text();
+                post = new Post(title, link, description, created);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return post;
     }
 }

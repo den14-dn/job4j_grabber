@@ -6,16 +6,20 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import ru.job4j.grabber.Parse;
 import ru.job4j.grabber.Post;
+import ru.job4j.grabber.PsqlStore;
+import ru.job4j.grabber.Store;
 import ru.job4j.grabber.utils.DateTimeParser;
 import ru.job4j.grabber.utils.SqlRuDateTimeParser;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class SqlRuParse implements Parse {
-    private static final int COUNT_PAGES = 5;
+    private static final int COUNT_PAGES = 1;
     private static final String URL_SITE = "https://www.sql.ru/forum/job-offers/";
     private final DateTimeParser dateTimeParser;
 
@@ -26,6 +30,17 @@ public class SqlRuParse implements Parse {
     public static void main(String[] args) {
         SqlRuParse parse = new SqlRuParse(new SqlRuDateTimeParser());
         List<Post> list = parse.list(URL_SITE);
+        try (InputStream in = SqlRuParse.class.getClassLoader().getResourceAsStream("rabbit.properties")) {
+            Properties cfg = new Properties();
+            cfg.load(in);
+            Store store = new PsqlStore(cfg);
+            for (Post el : list) {
+                store.save(el);
+            }
+            List<Post> findList = store.getAll();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

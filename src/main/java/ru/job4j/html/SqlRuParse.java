@@ -36,6 +36,9 @@ public class SqlRuParse implements Parse {
                 Document doc = Jsoup.connect(link + pageNumber).get();
                 Elements row = doc.select(".postslisttopic");
                 for (Element td : row) {
+                    if (!td.child(0).text().toLowerCase().contains("java")) {
+                        continue;
+                    }
                     list.add(detail(td.child(0).attr("href")));
                 }
             } catch (IOException e) {
@@ -51,12 +54,10 @@ public class SqlRuParse implements Parse {
         try {
             Document doc = Jsoup.connect(link).get();
             String title = doc.title();
-            if (title.contains("Java")) {
-                String stringDate = doc.select(".msgFooter").get(0).text();
-                LocalDateTime created = dateTimeParser.parse(stringDate.substring(0, stringDate.indexOf('[')));
-                String description = doc.select(".msgBody").get(1).text();
-                post = new Post(title, link, description, created);
-            }
+            String stringDate = doc.select(".msgFooter").get(0).text();
+            LocalDateTime created = dateTimeParser.parse(stringDate.substring(0, stringDate.indexOf('[')));
+            String description = doc.select(".msgBody").get(1).text();
+            post = new Post(title, link, description, created);
         } catch (Exception e) {
             e.printStackTrace();
         }

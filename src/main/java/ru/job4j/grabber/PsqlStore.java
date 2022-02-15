@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Properties;
 
 public class PsqlStore implements Store, AutoCloseable {
-    private Connection connection;
+    private final Connection connection;
 
     public PsqlStore(Properties cfg) {
         try {
@@ -48,13 +48,7 @@ public class PsqlStore implements Store, AutoCloseable {
         try (PreparedStatement statement = connection.prepareStatement("select id, name, text, link, created from post")) {
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
-                    posts.add(new Post(
-                            resultSet.getInt("id"),
-                            resultSet.getString("name"),
-                            resultSet.getString("text"),
-                            resultSet.getString("link"),
-                            resultSet.getTimestamp("created").toLocalDateTime()
-                    ));
+                    posts.add(getPost(resultSet));
                 }
             }
         } catch (Exception e) {
@@ -66,15 +60,10 @@ public class PsqlStore implements Store, AutoCloseable {
     @Override
     public Post findById(int id) {
         Post post = null;
-        try (PreparedStatement statement = connection.prepareStatement("select name, text, link, created from post where id = ?")) {
+        try (PreparedStatement statement = connection.prepareStatement("select id, name, text, link, created from post where id = ?")) {
              statement.setInt(1, id);
              try (ResultSet resultSet = statement.executeQuery()) {
-                post = new Post(id,
-                        resultSet.getString("name"),
-                        resultSet.getString("text"),
-                        resultSet.getString("link"),
-                        resultSet.getTimestamp("created").toLocalDateTime()
-                );
+                post = getPost(resultSet);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -87,5 +76,15 @@ public class PsqlStore implements Store, AutoCloseable {
         if (connection != null) {
             connection.close();
         }
+    }
+
+    private Post getPost(ResultSet resultSet) throws SQLException {
+        return new Post(
+                resultSet.getInt("id"),
+                resultSet.getString("name"),
+                resultSet.getString("text"),
+                resultSet.getString("link"),
+                resultSet.getTimestamp("created").toLocalDateTime()
+        );
     }
 }

@@ -28,7 +28,7 @@ public class SqlRuParse implements Parse {
     }
 
     public static void main(String[] args) {
-        SqlRuParse parse = new SqlRuParse(new SqlRuDateTimeParser());
+        Parse parse = new SqlRuParse(new SqlRuDateTimeParser());
         List<Post> list = parse.list(URL_SITE);
         try (InputStream in = SqlRuParse.class.getClassLoader().getResourceAsStream("rabbit.properties")) {
             Properties cfg = new Properties();
